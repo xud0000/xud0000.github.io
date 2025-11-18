@@ -22,43 +22,42 @@
             height: auto;
             transform: translate(-50%, -50%);
             object-fit: cover;
-            cursor: default; 
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <video id="myVideo" src="project_final.mp4" loop>
+    <video id="myVideo" src="project_final.mp4" loop muted>
         <p>你的瀏覽器不支援影片播放。</p>
     </video>
 
     <script>
         const video = document.getElementById('myVideo');
-        function playVideo() {
-            if (video.paused) {
-                const playPromise = video.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log("影片開始播放");
-                        removeInteractionListeners();
-                    }).catch(error => {
-                        console.warn("自動播放被阻擋", error);
-                    });
-                }
+        
+        // 檢測滑鼠移動和觸控事件
+        let hasInteracted = false;
+        
+        function startVideo() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                
+                // 開始播放影片
+                video.play().catch(error => {
+                    console.error('播放失敗:', error);
+                });
+                
+                // 移除事件監聽器，避免重複觸發
+                document.removeEventListener('mousemove', startVideo);
+                document.removeEventListener('touchmove', startVideo);
             }
         }
-        function removeInteractionListeners() {
-            document.removeEventListener('mousemove', playVideo);
-            document.removeEventListener('touchmove', playVideo);
-            document.removeEventListener('touchstart', playVideo);
-        }
-        function initEventListeners() {
-            document.addEventListener('mousemove', playVideo);
-            document.addEventListener('touchmove', playVideo);
-            document.addEventListener('touchstart', playVideo);
-        }
-        initEventListeners();
+
+        // 添加事件監聽器
+        document.addEventListener('mousemove', startVideo);
+        document.addEventListener('touchmove', startVideo);
+
+        // 點擊影片播放/暫停
         video.addEventListener('click', function() {
             if (video.paused) {
                 video.play();
