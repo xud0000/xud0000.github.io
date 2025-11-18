@@ -22,7 +22,7 @@
             height: auto;
             transform: translate(-50%, -50%);
             object-fit: cover;
-            cursor: pointer;
+            cursor: default; 
         }
     </style>
 </head>
@@ -33,9 +33,32 @@
     </video>
 
     <script>
-        // 讓使用者點擊影片時，可以播放或暫停
         const video = document.getElementById('myVideo');
-        
+        function playVideo() {
+            if (video.paused) {
+                const playPromise = video.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("影片開始播放");
+                        removeInteractionListeners();
+                    }).catch(error => {
+                        console.warn("自動播放被阻擋", error);
+                    });
+                }
+            }
+        }
+        function removeInteractionListeners() {
+            document.removeEventListener('mousemove', playVideo);
+            document.removeEventListener('touchmove', playVideo);
+            document.removeEventListener('touchstart', playVideo);
+        }
+        function initEventListeners() {
+            document.addEventListener('mousemove', playVideo);
+            document.addEventListener('touchmove', playVideo);
+            document.addEventListener('touchstart', playVideo);
+        }
+        initEventListeners();
         video.addEventListener('click', function() {
             if (video.paused) {
                 video.play();
